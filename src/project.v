@@ -92,6 +92,7 @@ module tt_um_crc32 (
 
 	assign uio_oe = 0;	
 	assign uio_out = 0;
+	assign uo_out[7:2] = 0;
 	wire _unused = &{ena, ui_in[7:1], uio_in, 1'b0};
 	assign uo_out[0] = sout;
 	assign uo_out[1] = done;
