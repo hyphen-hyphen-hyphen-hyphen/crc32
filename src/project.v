@@ -6,12 +6,22 @@
 `default_nettype none
  
 
-module topmodule (input wire clk, input wire rst, input wire data, output wire [31:0] out, output reg done);
+module tt_um_crc32 (
+	input  wire [7:0] ui_in,    // Dedicated inputs
+	output wire [7:0] uo_out,   // Dedicated outputs
+	input  wire [7:0] uio_in,   // IOs: Input path
+	output wire [7:0] uio_out,  // IOs: Output path
+	output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
+	input  wire       ena,      // always 1 when the design is powered, so you can ignore it
+	input  wire       clk,      // clock
+	input  wire       rst_n     // reset_n - low to reset
+);
 
 	reg [31:0] crc;
 	reg [31:0] next_crc;
+	reg done;
 	wire fb;
-	assign fb = crc[31] ^ data;
+	assign fb = crc[31] ^ ui_in[0];
 	always @(*) begin
 		next_crc = crc;
 		if (!done) begin
@@ -34,7 +44,7 @@ module topmodule (input wire clk, input wire rst, input wire data, output wire [
 
 	end
 	always @(posedge clk) begin
-		if (rst)  begin 
+		if (!rst_n)  begin 
 			crc <= 32'hFFFFFFFF;
 		end
 		else if (!done) crc <= next_crc;	
@@ -46,11 +56,12 @@ module topmodule (input wire clk, input wire rst, input wire data, output wire [
 			assign rev[i] = crc[31-i];
 		end
 	endgenerate
+	wire [31:0] out;
 	assign out = ~rev;
 
 	reg [7:0] count;
 	always @(posedge clk) begin
-		if (rst) begin
+		if (!rst_n) begin
 			done <= 0;
 			count <= 0;
 		end
@@ -62,5 +73,29 @@ module topmodule (input wire clk, input wire rst, input wire data, output wire [
 		       	count <= count + 1;
 		end
 	end
+
+	reg sout;
+	reg [4:0] count2;
+	reg shifting;
+	always @(posedge clk) begin
+		if (!rst_n) begin
+			sout <= 0;
+			count2 <= 0;
+			shifting <= 1;
+		end
+		else if (done && shifting) begin
+			sout <= out[count2];
+		if (count2 == 31) shifting <= 0;
+		else count2 <= count2 + 1;
+		end
+	end
+
+	assign uio_oe = 0;	
+	assign uio_out = 0;
+	wire _unused = &{ena, ui_in[7:1], uio_in, 1'b0};
+	assign uo_out[0] = sout;
+	assign uo_out[1] = done;
+
+
 
 endmodule
