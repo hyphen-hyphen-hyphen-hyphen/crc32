@@ -1,20 +1,20 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
+# Verilog CRC32
 
 ## How it works
 
-Explain how your project works
+This is a CRC32 implementation in verilog.
+It takes 9 bytes of input, LSB first. It processes one bit per clock signal.
+
+Both the input and outputs are serial, \it starts taking input on the first clock edge after (active low) reset goes high, \and it starts outputing on the first clock edge after done goes high.
 
 ## How to test
 
-Explain how to use your project
+You can test it by compiling src/project.v and test/tb_standalone.v with iverilog, and simulate it using vvp.
+The simulation can be viewed with GTKwave.
+Example:
+```
+iverilog -o out src/project.v test/tb_standalone.v
+vvp out -fst
+gtkwave out.fst
+```
 
-## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
