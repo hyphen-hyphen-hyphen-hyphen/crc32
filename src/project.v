@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2024 Your Name
- * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2024 Ingvard
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 `default_nettype none
@@ -19,7 +19,8 @@ module tt_um_crc32 (
 
 	reg [31:0] crc;
 	reg [31:0] next_crc;
-	reg done;
+	wire done;
+	assign done = ui_in[1];
 	wire fb;
 	assign fb = crc[31] ^ ui_in[0];
 	always @(*) begin
@@ -59,20 +60,6 @@ module tt_um_crc32 (
 	wire [31:0] out;
 	assign out = ~rev;
 
-	reg [7:0] count;
-	always @(posedge clk) begin
-		if (!rst_n) begin
-			done <= 0;
-			count <= 0;
-		end
-		else if (count == 71) begin
-			done <= 1;
-			count <= 0;
-		end 
-		else begin
-		       	count <= count + 1;
-		end
-	end
 
 	reg sout;
 	reg [4:0] count2;
@@ -93,7 +80,7 @@ module tt_um_crc32 (
 	assign uio_oe = 0;	
 	assign uio_out = 0;
 	assign uo_out[7:2] = 0;
-	wire _unused = &{ena, ui_in[7:1], uio_in, 1'b0};
+	wire _unused = &{ena, ui_in[7:2], uio_in, 1'b0};
 	assign uo_out[0] = sout;
 	assign uo_out[1] = done;
 

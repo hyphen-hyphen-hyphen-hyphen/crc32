@@ -1,9 +1,6 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-/* This testbench just instantiates the module and makes some convenient wires
-   that can be driven / tested by the cocotb test.py.
-*/
 module tb ();
 
 	// Dump the signals to a FST file. You can view it with gtkwave or surfer.
@@ -19,10 +16,10 @@ module tb ();
 	reg rst_n;
 	reg ena;
 	reg data;
-	wire [7:0] ui_in = {7'b0, data};
+	reg done;
+	wire [7:0] ui_in = {6'b0, done, data};
 	reg [7:0] uio_in;
 	wire [7:0] uo_out;
-	wire done = uo_out[1];
 	wire [7:0] uio_out;
 	wire [7:0] uio_oe;
 	reg [31:0] out;
@@ -45,7 +42,7 @@ module tb ();
 //		rst_n = 1;
 //	end
 	initial begin
-		rst_n = 0; data = 0; ena = 1; uio_in = 0;
+		done = 0; rst_n = 0; data = 0; ena = 1; uio_in = 0;
 		repeat (3) @(posedge clk);
 		@(negedge clk) rst_n = 1;
 
@@ -55,6 +52,7 @@ module tb ();
 			@(posedge clk);
 			@(negedge clk);
 		end
+		done = 1;
 
 		// read the CRC back serially, out[0] first
 		for (n = 0; n < 32; n = n + 1) begin
@@ -69,7 +67,6 @@ module tb ();
 			$display("PASS: %08X", out);
 		$finish;
 	end
-
 
 	// Replace tt_um_example with your module name:
 	tt_um_crc32 user_project (
