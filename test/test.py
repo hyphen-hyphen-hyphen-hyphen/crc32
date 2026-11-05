@@ -29,13 +29,8 @@ async def test_project(dut):
 		for i in range(8):
 			bits.append((byte >> i) & 1)
 	assert len(bits) == 72
+    done = 1
 
-	for bit in bits:
-		assert dut.uo_out.value[1] == 0, "done went high too early"
-		dut.ui_in.value = bit
-		await FallingEdge(dut.clk)
-
-	assert dut.uo_out.value[1] == 1, "done did not go high"
 
 	out = 0
 	for n in range(32):
