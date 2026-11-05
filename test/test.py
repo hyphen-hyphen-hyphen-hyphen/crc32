@@ -29,7 +29,7 @@ async def test_project(dut):
 		for i in range(8):
 			bits.append((byte >> i) & 1)
 	assert len(bits) == 72
-    done = 1
+	done = 1
 
 
 	out = 0
