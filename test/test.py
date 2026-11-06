@@ -31,6 +31,11 @@ async def test_project(dut):
 	assert len(bits) == 72
 	done = 1
 
+	for bit in bits:
+		dut.ui_in.value = bit
+		await FallingEdge(dut.clk)
+
+	dut.ui_in.value = 0b10
 
 	out = 0
 	for n in range(32):
